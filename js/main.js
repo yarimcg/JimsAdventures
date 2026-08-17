@@ -1,4 +1,3 @@
-const THEMES = ["rhyolite", "campfire", "bolt"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -90,18 +89,8 @@ const TRACK = [
 ];
 
 const TILES = {
-  rhyolite: {
-    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    attr: "&copy; OpenStreetMap &copy; CARTO"
-  },
-  campfire: {
-    url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-    attr: "&copy; OpenStreetMap &copy; CARTO"
-  },
-  bolt: {
-    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    attr: "&copy; OpenStreetMap &copy; CARTO"
-  }
+  url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+  attr: "&copy; OpenStreetMap &copy; CARTO"
 };
 
 const AUCKLAND = [-36.8485, 174.7633];
@@ -137,44 +126,13 @@ function isSeason(date) {
   return m >= 9 || m <= 3; // Oct–Apr
 }
 
-const HERO = {
-  rhyolite: {
-    src: "images/rappel.jpg",
-    alt: "Rappelling a high cliff with the valley and lake country below"
-  },
-  campfire: {
-    src: "images/camp-sunset-path.jpg",
-    alt: "Sunset over the lake from camp at Kawakawa Bay"
-  },
-  bolt: {
-    src: "images/lake-quickdraws.jpg",
-    alt: "Quickdraws on the cliff framing the lake"
-  }
-};
-
-function setTheme(name) {
-  document.documentElement.dataset.theme = name;
-  localStorage.setItem("jims-theme", name);
-  document.querySelectorAll("[data-theme-set]").forEach((btn) => {
-    btn.classList.toggle("is-active", btn.dataset.themeSet === name);
-  });
-  const hero = document.getElementById("hero-img");
-  if (hero && HERO[name]) {
-    hero.src = HERO[name].src;
-    hero.alt = HERO[name].alt;
-  }
-  if (map) swapTiles(name);
-  if (mapNz) swapNzTiles(name);
-}
-
 function accentColor() {
-  return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#e8943a";
+  return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#c45c26";
 }
 
-function swapTiles(name) {
-  const spec = TILES[name] || TILES.rhyolite;
+function swapTiles() {
   if (tileLayer) map.removeLayer(tileLayer);
-  tileLayer = L.tileLayer(spec.url, { attribution: spec.attr, maxZoom: 18 }).addTo(map);
+  tileLayer = L.tileLayer(TILES.url, { attribution: TILES.attr, maxZoom: 18 }).addTo(map);
   if (trackLine) trackLine.setStyle({ color: accentColor() });
   if (markers.length) {
     markers.forEach((m) => map.removeLayer(m));
@@ -332,10 +290,9 @@ function addNzPins() {
   ];
 }
 
-function swapNzTiles(name) {
-  const spec = TILES[name] || TILES.rhyolite;
+function swapNzTiles() {
   if (tileLayerNz) mapNz.removeLayer(tileLayerNz);
-  tileLayerNz = L.tileLayer(spec.url, { attribution: spec.attr, maxZoom: 18 }).addTo(mapNz);
+  tileLayerNz = L.tileLayer(TILES.url, { attribution: TILES.attr, maxZoom: 18 }).addTo(mapNz);
   if (nzMarkers.length) {
     nzMarkers.forEach((m) => mapNz.removeLayer(m));
     nzMarkers = [];
@@ -349,7 +306,7 @@ function initMap() {
     zoomControl: true
   });
 
-  swapTiles(document.documentElement.dataset.theme || "rhyolite");
+  swapTiles();
 
   trackLine = L.polyline(TRACK, {
     color: accentColor(),
@@ -371,18 +328,9 @@ function initMap() {
     zoomControl: true
   }).fitBounds(NZ_BOUNDS, { padding: [24, 24] });
 
-  swapNzTiles(document.documentElement.dataset.theme || "rhyolite");
+  swapNzTiles();
   addNzPins();
   setTimeout(() => mapNz.invalidateSize(), 300);
-}
-
-function initTheme() {
-  const saved = localStorage.getItem("jims-theme");
-  const start = THEMES.includes(saved) ? saved : "rhyolite";
-  setTheme(start);
-  document.querySelectorAll("[data-theme-set]").forEach((btn) => {
-    btn.addEventListener("click", () => setTheme(btn.dataset.themeSet));
-  });
 }
 
 function initNav() {
@@ -464,7 +412,6 @@ function initLightbox() {
   });
 }
 
-initTheme();
 initNav();
 renderSeason();
 renderCalendar();
