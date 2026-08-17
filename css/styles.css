@@ -183,8 +183,39 @@ p {
   color: var(--muted);
 }
 
+.brand-tag {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  line-height: 1.15;
+  flex: 1 1 12rem;
+}
+
+.brand-tag span:first-child {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.82rem;
+}
+
+.brand-tag span:last-child {
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@media (min-width: 720px) {
+  .brand-tag {
+    flex: 0 1 auto;
+    padding-left: 0.85rem;
+    margin-left: 0.15rem;
+    border-left: 1px solid var(--line);
+  }
+}
+
 .nav {
-  display: none;
+  display: flex;
   gap: 1.4rem;
   align-items: center;
 }
@@ -204,49 +235,7 @@ p {
   font-weight: 600;
 }
 
-.nav-toggle {
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--line);
-  background: transparent;
-  display: grid;
-  place-items: center;
-  gap: 6px;
-  cursor: pointer;
-}
-
-.nav-toggle span {
-  display: block;
-  width: 18px;
-  height: 2px;
-  background: var(--fg);
-}
-
-.nav-toggle[aria-expanded="true"] + .nav,
-body.nav-open .nav {
-  display: flex;
-}
-
-@media (max-width: 879px) {
-  body.nav-open .nav {
-    position: absolute;
-    top: 64px;
-    left: 0;
-    right: 0;
-    background: var(--bg);
-    flex-direction: column;
-    padding: 1.25rem;
-    border-bottom: 1px solid var(--line);
-  }
-}
-
 @media (min-width: 880px) {
-  .nav {
-    display: flex;
-  }
-  .nav-toggle {
-    display: none;
-  }
   .site-header {
     padding: 0.85rem 2rem;
   }

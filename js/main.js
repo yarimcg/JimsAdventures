@@ -334,15 +334,10 @@ function initMap() {
 }
 
 function initNav() {
-  const toggle = document.querySelector(".nav-toggle");
-  toggle.addEventListener("click", () => {
-    const open = document.body.classList.toggle("nav-open");
-    toggle.setAttribute("aria-expanded", String(open));
-  });
-  document.querySelectorAll(".nav a").forEach((a) => {
-    a.addEventListener("click", () => {
-      document.body.classList.remove("nav-open");
-      toggle.setAttribute("aria-expanded", "false");
+  document.querySelectorAll("a.brand").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
   });
 }
