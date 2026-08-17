@@ -35,12 +35,57 @@ const TRIPS = [
 const KINLOCH = [-38.6684, 175.9228];
 const CAMP = [-38.6701, 175.8679];
 const CLIFFS = [-38.6692, 175.8724];
+const LOOKOUT = [-38.6617, 175.8788];
 const TRACK = [
   KINLOCH,
-  [-38.6718, 175.912],
-  [-38.6752, 175.898],
-  [-38.6736, 175.886],
-  [-38.671, 175.876],
+  [-38.66720, 175.92080],
+  [-38.66580, 175.91860],
+  [-38.66390, 175.91640],
+  [-38.66150, 175.91480],
+  [-38.65925, 175.91291],
+  [-38.65843, 175.91097],
+  [-38.65721, 175.90995],
+  [-38.65698, 175.90921],
+  [-38.65763, 175.90867],
+  [-38.65768, 175.90776],
+  [-38.65762, 175.90672],
+  [-38.65867, 175.90521],
+  [-38.65834, 175.90353],
+  [-38.65687, 175.90333],
+  [-38.65758, 175.90204],
+  [-38.65726, 175.90041],
+  [-38.65708, 175.89871],
+  [-38.65743, 175.89753],
+  [-38.65751, 175.89596],
+  [-38.65687, 175.89588],
+  [-38.65778, 175.89413],
+  [-38.65885, 175.89282],
+  [-38.65972, 175.89131],
+  [-38.66055, 175.88988],
+  [-38.66077, 175.88810],
+  [-38.66061, 175.88642],
+  [-38.65967, 175.88558],
+  [-38.65932, 175.88440],
+  [-38.65934, 175.88264],
+  [-38.66024, 175.88136],
+  [-38.66096, 175.87968],
+  LOOKOUT,
+  [-38.66148, 175.87859],
+  [-38.66081, 175.87824],
+  [-38.66049, 175.87786],
+  [-38.66200, 175.87718],
+  [-38.66229, 175.87626],
+  [-38.66284, 175.87564],
+  [-38.66237, 175.87477],
+  [-38.66166, 175.87421],
+  [-38.66257, 175.87290],
+  [-38.66321, 175.87197],
+  [-38.66437, 175.87121],
+  [-38.66550, 175.87067],
+  [-38.66465, 175.86958],
+  [-38.66403, 175.86929],
+  [-38.66580, 175.86960],
+  [-38.66760, 175.86880],
   CAMP
 ];
 
@@ -257,7 +302,8 @@ function addPins() {
   markers = [
     L.marker(KINLOCH, { icon: pinIcon("A") }).addTo(map).bindPopup("<strong>Kinloch</strong><br>Trailhead. Park and walk the K2K."),
     L.marker(CAMP, { icon: pinIcon("B") }).addTo(map).bindPopup("<strong>Kawakawa camp</strong><br>Tents, swim, Jim’s kitchen."),
-    L.marker(CLIFFS, { icon: pinIcon("C") }).addTo(map).bindPopup("<strong>The cliffs</strong><br>Lead, multi-pitch, trad.")
+    L.marker(CLIFFS, { icon: pinIcon("C") }).addTo(map).bindPopup("<strong>The cliffs</strong><br>Lead, multi-pitch, trad."),
+    L.marker(LOOKOUT, { icon: pinIcon("D") }).addTo(map).bindPopup("<strong>Codger’s Rock</strong><br>Lookout on the K2K walk in.")
   ];
 }
 
@@ -301,19 +347,24 @@ function initMap() {
   map = L.map("leaflet-map", {
     scrollWheelZoom: false,
     zoomControl: true
-  }).setView([-38.67, 175.895], 12);
+  });
 
   swapTiles(document.documentElement.dataset.theme || "rhyolite");
 
   trackLine = L.polyline(TRACK, {
     color: accentColor(),
-    weight: 4,
+    weight: 5,
     opacity: 0.95,
-    dashArray: "8 8"
+    lineJoin: "round",
+    lineCap: "round"
   }).addTo(map);
 
   addPins();
-  setTimeout(() => map.invalidateSize(), 300);
+  map.fitBounds(trackLine.getBounds(), { padding: [28, 28] });
+  setTimeout(() => {
+    map.invalidateSize();
+    map.fitBounds(trackLine.getBounds(), { padding: [28, 28] });
+  }, 300);
 
   mapNz = L.map("leaflet-map-nz", {
     scrollWheelZoom: false,
