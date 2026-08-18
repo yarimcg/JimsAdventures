@@ -14,12 +14,14 @@ const UNAVAILABLE = [
   { start: "2027-04-08", end: "2027-04-11" }
 ];
 
-const KINLOCH = [-38.6684, 175.9228];
+const KINLOCH = [-38.6627, 175.9211];
 const CAMP = [-38.6701, 175.8679];
-const CLIFFS = [-38.6692, 175.8724];
 const LOOKOUT = [-38.6617, 175.8788];
 const TRACK = [
   KINLOCH,
+  [-38.6639, 175.9216],
+  [-38.6656, 175.9220],
+  [-38.6672, 175.9211],
   [-38.66720, 175.92080],
   [-38.66580, 175.91860],
   [-38.66390, 175.91640],
@@ -260,10 +262,9 @@ function pinIcon(letter) {
 
 function addPins() {
   markers = [
-    L.marker(KINLOCH, { icon: pinIcon("A") }).addTo(map).bindPopup("<strong>Kinloch</strong><br>Trailhead. A café here finishes the trip."),
+    L.marker(KINLOCH, { icon: pinIcon("A") }).addTo(map).bindPopup("<strong>Kinloch</strong><br>Carpark by Little Harbour. Café at the finish."),
     L.marker(CAMP, { icon: pinIcon("B") }).addTo(map).bindPopup("<strong>Kawakawa camp</strong><br>Tents, swim, Jim’s kitchen."),
-    L.marker(CLIFFS, { icon: pinIcon("C") }).addTo(map).bindPopup("<strong>The cliffs</strong><br>Lead, multi-pitch, trad."),
-    L.marker(LOOKOUT, { icon: pinIcon("D") }).addTo(map).bindPopup("<strong>Codger’s Rock</strong><br>Lookout on the K2K walk in.")
+    L.marker(LOOKOUT, { icon: pinIcon("C") }).addTo(map).bindPopup("<strong>Codger’s Rock</strong><br>Lookout on the K2K walk in.")
   ];
 }
 

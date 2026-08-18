@@ -58,6 +58,13 @@ a {
   color: inherit;
 }
 
+.story-copy a,
+.gallery-head a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
 button,
 input,
 select,
@@ -309,17 +316,6 @@ p {
   margin-top: 1.5rem;
 }
 
-.hero-scroll {
-  position: absolute;
-  right: 1.25rem;
-  bottom: 1.4rem;
-  margin: 0;
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(247, 243, 234, 0.7);
-}
-
 /* Marquee */
 
 .marquee {
@@ -333,7 +329,7 @@ p {
   display: flex;
   gap: 2.5rem;
   width: max-content;
-  animation: ticker 32s linear infinite;
+  animation: ticker 64s linear infinite;
   padding: 0.85rem 0;
   font-family: var(--font-display);
   font-size: clamp(1.1rem, 3vw, 1.6rem);
@@ -730,8 +726,7 @@ p {
 /* Dates / calendar */
 
 .dates {
-  padding: 5rem 1.25rem 4rem;
-  background: var(--bg-2);
+  padding: 0;
 }
 
 .dates-head {
@@ -879,10 +874,9 @@ p {
   margin-top: 0.7rem;
 }
 
-@media (min-width: 800px) {
-  .dates {
-    padding: 6rem 2.5rem;
-  }
+.book-pair {
+  display: grid;
+  gap: 2rem;
 }
 
 /* Map */
@@ -1127,9 +1121,12 @@ p {
 
 @media (min-width: 800px) {
   .book {
-    grid-template-columns: 1fr 1.1fr;
     padding: 6rem 2.5rem;
+  }
+  .book-pair {
+    grid-template-columns: minmax(18rem, 22rem) 1fr;
     align-items: start;
+    gap: 3rem;
   }
   .book-form {
     grid-template-columns: 1fr 1fr;
