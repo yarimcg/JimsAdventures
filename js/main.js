@@ -227,7 +227,17 @@ function rangeIsOpen(start, end) {
   return true;
 }
 
-const MIN_NIGHTS = 2;
+const TRIP_NIGHTS = 2;
+
+function addDays(date, n) {
+  const d = startOfDay(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function tripEndFrom(start) {
+  return addDays(start, TRIP_NIGHTS);
+}
 
 function nightsHeld(start, end) {
   const a = startOfDay(start).getTime();
@@ -235,25 +245,26 @@ function nightsHeld(start, end) {
   return Math.round(Math.abs(b - a) / 86400000);
 }
 
-function tripIsLongEnough(start, end) {
-  return nightsHeld(start, end) >= MIN_NIGHTS;
+function tripFitsStay(start, end) {
+  return nightsHeld(start, end) === TRIP_NIGHTS;
+}
+
+function canStartTrip(date) {
+  if (isUnavailable(date)) return false;
+  return rangeIsOpen(date, tripEndFrom(date));
 }
 
 function holdDates() {
   const field = document.getElementById("dates-field");
   const hint = document.getElementById("cal-hint");
-  if (!selectedStart) {
+  if (!selectedStart || !selectedEnd) {
     field.value = "";
-    hint.textContent = "Tap a start and an end — trips are two nights minimum, on open days only.";
+    hint.textContent = "Tap a day to hold two nights from that morning.";
     return;
   }
-  const label = formatRange(selectedStart, selectedEnd || selectedStart);
-  field.value = selectedEnd && tripIsLongEnough(selectedStart, selectedEnd) ? label : "";
-  if (selectedEnd && tripIsLongEnough(selectedStart, selectedEnd)) {
-    hint.textContent = `${label} held on your enquiry.`;
-  } else {
-    hint.textContent = `${label} — tap an end date at least two nights apart.`;
-  }
+  const label = formatRange(selectedStart, selectedEnd);
+  field.value = label;
+  hint.textContent = `${label} held on your enquiry.`;
 }
 
 function renderCalendar() {
@@ -290,6 +301,11 @@ function renderCalendar() {
       btn.classList.add("unavailable");
       btn.title = "Unavailable";
       btn.disabled = true;
+    } else if (!canStartTrip(date)) {
+      btn.classList.add("available");
+      btn.title = "A two-night trip from this day hits unavailable dates";
+      btn.disabled = true;
+      if (isSelected(date)) btn.classList.add("selected");
     } else {
       btn.classList.add("available");
       btn.title = "Available";
@@ -303,32 +319,21 @@ function renderCalendar() {
 
 function selectDay(date) {
   const picked = startOfDay(date);
-  if (!selectedStart || selectedEnd) {
-    selectedStart = picked;
+  const end = tripEndFrom(picked);
+  if (selectedStart && iso(picked) === iso(selectedStart)) {
+    selectedStart = null;
     selectedEnd = null;
-  } else if (iso(picked) === iso(selectedStart)) {
-    selectedEnd = null;
-  } else if (!rangeIsOpen(selectedStart, picked)) {
-    selectedStart = picked;
+  } else if (!rangeIsOpen(picked, end)) {
+    selectedStart = null;
     selectedEnd = null;
     renderCalendar();
     holdDates();
     document.getElementById("cal-hint").textContent =
-      "That stretch includes unavailable days. Pick a range that’s all open.";
-    return;
-  } else if (!tripIsLongEnough(selectedStart, picked)) {
-    renderCalendar();
-    holdDates();
-    document.getElementById("cal-hint").textContent =
-      "Trips are two nights minimum. Tap a start and an end at least two nights apart.";
+      "That two-night stay includes unavailable days. Pick another start.";
     return;
   } else {
-    selectedEnd = picked;
-    if (selectedEnd < selectedStart) {
-      const swap = selectedStart;
-      selectedStart = selectedEnd;
-      selectedEnd = swap;
-    }
+    selectedStart = picked;
+    selectedEnd = end;
   }
 
   holdDates();
@@ -463,9 +468,9 @@ function initForm() {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(form));
-    if (!selectedStart || !selectedEnd || !rangeIsOpen(selectedStart, selectedEnd) || !tripIsLongEnough(selectedStart, selectedEnd)) {
+    if (!selectedStart || !selectedEnd || !rangeIsOpen(selectedStart, selectedEnd) || !tripFitsStay(selectedStart, selectedEnd)) {
       status.hidden = false;
-      status.textContent = "Pick at least two nights of open dates from the calendar.";
+      status.textContent = "Pick two nights of open dates from the calendar.";
       return;
     }
     const body = [

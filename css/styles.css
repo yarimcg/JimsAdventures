@@ -26,6 +26,7 @@
   --open: #2d6a6a;
   --booked: #c45c26;
   --off: #d4c6ae;
+  --measure: 65ch;
 }
 
 *,
@@ -110,6 +111,18 @@ p {
   margin: 0.85rem 0 0;
   color: var(--muted);
   font-size: 1.05rem;
+}
+
+.intro-text p,
+.story-copy p,
+.bio-copy p,
+.map-copy p,
+.two-inner p,
+.book-copy p,
+.dates-head p,
+.custom-head p,
+.gallery-head p {
+  max-width: var(--measure);
 }
 
 .btn {
@@ -410,18 +423,11 @@ p {
   font-size: clamp(2.4rem, 7vw, 4.4rem);
 }
 
-@media (min-width: 900px) {
-  .custom-head h2,
-  .dates-head h2,
-  .book-copy h2 {
-    white-space: nowrap;
-  }
-}
-
-@media (min-width: 1280px) {
-  .gallery-head h2 {
-    white-space: nowrap;
-  }
+.book-copy,
+.dates-head,
+.custom-head,
+.gallery-head {
+  max-width: 40rem;
 }
 
 .intro-photo {
@@ -610,10 +616,6 @@ p {
   margin-bottom: 2.5rem;
 }
 
-.custom-head p {
-  max-width: 44rem;
-}
-
 .goal-grid {
   display: grid;
   gap: 1rem;
@@ -792,10 +794,6 @@ p {
   padding: 0;
 }
 
-.dates-head {
-  max-width: none;
-}
-
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -924,8 +922,17 @@ p {
   cursor: not-allowed;
 }
 
-.day.selected {
-  box-shadow: inset 0 0 0 2px var(--open);
+.day.available:disabled {
+  opacity: 0.7;
+}
+
+.day.selected,
+.day.available.selected {
+  background: var(--open);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: none;
+  opacity: 1;
 }
 
 .cal-hint {
@@ -1193,6 +1200,23 @@ p {
   color: var(--fg);
 }
 
+.book-form input,
+.book-form select {
+  height: 48px;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1.25;
+}
+
+.book-form select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%232a1f14' d='M1.2 1.5 6 6.3 10.8 1.5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  background-size: 0.7rem;
+  padding-right: 2.4rem;
+}
+
 .book-form .full {
   grid-column: 1 / -1;
 }
@@ -1210,7 +1234,7 @@ p {
     gap: 5.5rem;
   }
   .book-pair {
-    grid-template-columns: minmax(18rem, 22rem) 1fr;
+    grid-template-columns: minmax(18rem, 33rem) minmax(16rem, 1fr);
     align-items: start;
     gap: 3rem;
   }
@@ -1220,7 +1244,7 @@ p {
   .legend,
   .season,
   .cal-wrap {
-    max-width: 22rem;
+    max-width: 33rem;
   }
   .season {
     grid-template-columns: repeat(12, 1fr);
