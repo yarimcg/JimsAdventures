@@ -1232,14 +1232,17 @@ p {
   padding-bottom: max(3rem, env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
   display: grid;
-  gap: 0.7rem;
+  gap: 0.7rem 2.5rem;
+  align-items: center;
 }
 
 .site-footer .brand {
   flex-wrap: nowrap;
+  flex: none;
 }
 
-.site-footer > p:not(.fine) {
+.footer-line {
+  margin: 0;
   white-space: nowrap;
 }
 
@@ -1247,6 +1250,15 @@ p {
   font-size: 0.8rem;
   max-width: none;
   white-space: nowrap;
+}
+
+@media (min-width: 720px) {
+  .site-footer {
+    grid-template-columns: auto 1fr;
+  }
+  .fine {
+    grid-column: 1 / -1;
+  }
 }
 
 /* Lightbox */
