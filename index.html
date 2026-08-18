@@ -306,18 +306,18 @@
       <p class="price-note">If the weather is poor and we can’t rearrange the trip, you get a full refund.</p>
     </section>
 
-    <section class="book" id="book">
+    <section class="book">
       <div class="book-copy">
         <p class="eyebrow">Hold a trip</p>
-        <h2>Tell Jim what you want from the rock</h2>
+        <h2>Tell Jim what you want</h2>
         <p>Two seats. Custom days. Airport pick-up and drop-off if you want it. Tell him what you like to eat — the menu is custom, healthy food, dehydrated before you arrive. Ask for what you need — the idea of a guided trip is to keep things simple. He’ll write back with a plan, a packing list, and whether those dates are still available.</p>
       </div>
       <div class="dates-head">
         <p class="eyebrow">When to come</p>
-        <h2>When is the best time to come</h2>
-        <p>Summer is the best time of year — long days, warm rock, a swim after. You can go anytime, though. Winter can be cold and the daylight hours are short. Public holidays get busy, but we’ll always make something work. Each trip is two nights and three days unless you ask for something longer.</p>
+        <h2>When is the best time of year?</h2>
+        <p>Summer is the best time of year — long days, warm rock, a swim after. Open dates follow NZ school holidays and public holidays. Winter can be cold and the daylight hours are short. Public holidays get busy, but we’ll always make something work. Each trip is two nights and three days unless you ask for something longer.</p>
       </div>
-      <div class="book-pair">
+      <div class="book-pair" id="book">
       <div class="dates" id="dates">
         <div class="legend">
           <span><i class="lg-open"></i> Available</span>
@@ -331,7 +331,7 @@
             <button type="button" id="cal-next" aria-label="Next month">→</button>
           </div>
           <div class="cal" id="calendar"></div>
-          <p class="cal-hint" id="cal-hint">Tap available days to put them on the enquiry.</p>
+          <p class="cal-hint" id="cal-hint">Tap a start and an end — trips are two nights minimum, on open days only.</p>
         </div>
       </div>
       <form class="book-form" id="enquire-form">
@@ -342,7 +342,7 @@
           <input name="email" type="email" required autocomplete="email" />
         </label>
         <label>Dates
-          <input name="dates" id="dates-field" type="text" placeholder="Pick from the calendar, or type a range" />
+          <input name="dates" id="dates-field" type="text" readonly required placeholder="Pick two nights from the calendar" />
         </label>
         <label>Party
           <select name="party">

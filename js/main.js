@@ -1,17 +1,33 @@
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-const UNAVAILABLE = [
-  { start: "2026-10-08", end: "2026-10-11" },
-  { start: "2026-10-29", end: "2026-11-01" },
-  { start: "2026-11-12", end: "2026-11-15" },
-  { start: "2026-12-03", end: "2026-12-06" },
-  { start: "2026-12-17", end: "2026-12-20" },
-  { start: "2027-01-07", end: "2027-01-10" },
-  { start: "2027-01-28", end: "2027-01-31" },
-  { start: "2027-02-11", end: "2027-02-14" },
-  { start: "2027-03-11", end: "2027-03-14" },
-  { start: "2027-04-08", end: "2027-04-11" }
+// Ministry of Education term breaks:
+// https://www.education.govt.nz/school/school-terms-and-holiday-dates
+// Summer windows use the latest Term 4 close through the day before the latest Term 1 start.
+const SCHOOL_HOLIDAYS = [
+  { start: "2026-04-03", end: "2026-04-19" },
+  { start: "2026-07-04", end: "2026-07-19" },
+  { start: "2026-09-26", end: "2026-10-11" },
+  { start: "2026-12-19", end: "2027-02-02" },
+  { start: "2027-03-26", end: "2027-03-30" }, // Easter + Easter Tuesday, in term
+  { start: "2027-04-10", end: "2027-04-26" },
+  { start: "2027-07-03", end: "2027-07-18" },
+  { start: "2027-09-25", end: "2027-10-10" },
+  { start: "2027-12-18", end: "2028-02-07" }
+];
+
+// Employment NZ national days (actual + observed) plus Easter Tuesday and
+// Auckland Anniversary (Taupō / Waikato observance):
+// https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates
+const PUBLIC_HOLIDAYS = [
+  "2026-01-01", "2026-01-02", "2026-01-26", "2026-02-06",
+  "2026-04-03", "2026-04-06", "2026-04-07", "2026-04-25", "2026-04-27",
+  "2026-06-01", "2026-07-10", "2026-10-26",
+  "2026-12-25", "2026-12-26", "2026-12-28",
+  "2027-01-01", "2027-01-02", "2027-01-04", "2027-02-01", "2027-02-06", "2027-02-08",
+  "2027-03-26", "2027-03-29", "2027-03-30", "2027-04-25", "2027-04-26",
+  "2027-06-07", "2027-06-25", "2027-10-25",
+  "2027-12-25", "2027-12-26", "2027-12-27", "2027-12-28"
 ];
 
 const KINLOCH = [-38.6627, 175.9211];
@@ -125,10 +141,14 @@ function startOfDay(date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
+function isHolidayOpen(date) {
+  if (PUBLIC_HOLIDAYS.includes(iso(date))) return true;
+  return SCHOOL_HOLIDAYS.some((block) => inRange(date, block.start, block.end));
+}
+
 function isUnavailable(date) {
-  const today = startOfDay(new Date());
-  if (startOfDay(date) < today) return true;
-  return UNAVAILABLE.some((block) => inRange(date, block.start, block.end));
+  if (startOfDay(date) < startOfDay(new Date())) return true;
+  return !isHolidayOpen(date);
 }
 
 function accentColor() {
@@ -157,7 +177,7 @@ function monthHasAvailable(monthIndex, year) {
 function renderSeason() {
   const wrap = document.getElementById("season-strip");
   wrap.innerHTML = "";
-  const start = new Date(2026, 4, 1); // May 2026
+  const start = new Date(2026, 7, 1); // August 2026
   for (let i = 0; i < 12; i += 1) {
     const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
     const btn = document.createElement("button");
@@ -196,6 +216,46 @@ function isSelected(date) {
   return t >= Math.min(a, b) && t <= Math.max(a, b);
 }
 
+function rangeIsOpen(start, end) {
+  const from = startOfDay(start);
+  const to = startOfDay(end);
+  const first = from < to ? from : to;
+  const last = from < to ? to : from;
+  for (let d = new Date(first); d <= last; d.setDate(d.getDate() + 1)) {
+    if (isUnavailable(d)) return false;
+  }
+  return true;
+}
+
+const MIN_NIGHTS = 2;
+
+function nightsHeld(start, end) {
+  const a = startOfDay(start).getTime();
+  const b = startOfDay(end).getTime();
+  return Math.round(Math.abs(b - a) / 86400000);
+}
+
+function tripIsLongEnough(start, end) {
+  return nightsHeld(start, end) >= MIN_NIGHTS;
+}
+
+function holdDates() {
+  const field = document.getElementById("dates-field");
+  const hint = document.getElementById("cal-hint");
+  if (!selectedStart) {
+    field.value = "";
+    hint.textContent = "Tap a start and an end — trips are two nights minimum, on open days only.";
+    return;
+  }
+  const label = formatRange(selectedStart, selectedEnd || selectedStart);
+  field.value = selectedEnd && tripIsLongEnough(selectedStart, selectedEnd) ? label : "";
+  if (selectedEnd && tripIsLongEnough(selectedStart, selectedEnd)) {
+    hint.textContent = `${label} held on your enquiry.`;
+  } else {
+    hint.textContent = `${label} — tap an end date at least two nights apart.`;
+  }
+}
+
 function renderCalendar() {
   const root = document.getElementById("calendar");
   const title = document.getElementById("cal-title");
@@ -229,6 +289,7 @@ function renderCalendar() {
     if (isUnavailable(date)) {
       btn.classList.add("unavailable");
       btn.title = "Unavailable";
+      btn.disabled = true;
     } else {
       btn.classList.add("available");
       btn.title = "Available";
@@ -245,6 +306,22 @@ function selectDay(date) {
   if (!selectedStart || selectedEnd) {
     selectedStart = picked;
     selectedEnd = null;
+  } else if (iso(picked) === iso(selectedStart)) {
+    selectedEnd = null;
+  } else if (!rangeIsOpen(selectedStart, picked)) {
+    selectedStart = picked;
+    selectedEnd = null;
+    renderCalendar();
+    holdDates();
+    document.getElementById("cal-hint").textContent =
+      "That stretch includes unavailable days. Pick a range that’s all open.";
+    return;
+  } else if (!tripIsLongEnough(selectedStart, picked)) {
+    renderCalendar();
+    holdDates();
+    document.getElementById("cal-hint").textContent =
+      "Trips are two nights minimum. Tap a start and an end at least two nights apart.";
+    return;
   } else {
     selectedEnd = picked;
     if (selectedEnd < selectedStart) {
@@ -254,12 +331,7 @@ function selectDay(date) {
     }
   }
 
-  const field = document.getElementById("dates-field");
-  const label = formatRange(selectedStart, selectedEnd || selectedStart);
-  field.value = label;
-  document.getElementById("cal-hint").textContent = selectedEnd
-    ? `${label} held on your enquiry.`
-    : `${label} — tap another day for a range, or enquire as-is.`;
+  holdDates();
   renderCalendar();
 }
 
@@ -391,6 +463,11 @@ function initForm() {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(form));
+    if (!selectedStart || !selectedEnd || !rangeIsOpen(selectedStart, selectedEnd) || !tripIsLongEnough(selectedStart, selectedEnd)) {
+      status.hidden = false;
+      status.textContent = "Pick at least two nights of open dates from the calendar.";
+      return;
+    }
     const body = [
       `Name: ${data.name}`,
       `Email: ${data.email}`,

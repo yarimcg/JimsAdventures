@@ -917,9 +917,11 @@ p {
   cursor: pointer;
 }
 
-.day.unavailable {
+.day.unavailable,
+.day:disabled {
   color: var(--muted);
   opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .day.selected {
