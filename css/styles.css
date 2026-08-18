@@ -13,8 +13,8 @@
   --shade: linear-gradient(180deg, rgba(42, 31, 20, 0.15) 0%, rgba(42, 31, 20, 0.55) 70%, #2a1f14 100%);
   --hero-pos: center 58%;
   --radius: 1.5rem;
-  --font-display: "Fraunces", serif;
-  --font-serif: "Fraunces", serif;
+  --font-display: "Newsreader", serif;
+  --font-serif: "Newsreader", serif;
   --font-body: "Outfit", sans-serif;
   --tracking: -0.03em;
   --btn-radius: 0.6rem;
@@ -93,7 +93,7 @@ h3 {
   letter-spacing: var(--tracking);
   line-height: 0.95;
   margin: 0;
-  font-variation-settings: "SOFT" 40, "WONK" 1;
+  font-variation-settings: "opsz" 48;
 }
 
 p {
@@ -156,9 +156,15 @@ p {
   text-decoration: none;
 }
 
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
 .mark {
-  width: 42px;
-  height: 42px;
+  width: 5.1rem;
+  height: 3.9rem;
   color: var(--fg);
   flex-shrink: 0;
 }
@@ -171,13 +177,14 @@ p {
 
 .brand-text strong {
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: 1.45rem;
   letter-spacing: var(--tracking);
+  font-variation-settings: "opsz" 18;
 }
 
 .brand-text em {
   font-style: normal;
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--muted);
@@ -358,7 +365,9 @@ p {
 .map-copy h2,
 .gallery-head h2,
 .book-copy h2,
-.bio-copy h2 {
+.bio-copy h2,
+.suit .custom-head h2,
+.price .custom-head h2 {
   font-size: clamp(2.4rem, 7vw, 4.4rem);
 }
 
@@ -452,6 +461,87 @@ p {
 .story-block {
   border-radius: var(--radius);
   overflow: hidden;
+}
+
+/* Who it suits */
+
+.suit {
+  padding: 5rem 1.25rem;
+}
+
+.suit-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.suit-grid article {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 1.5rem 1.25rem;
+  border-radius: var(--photo-radius);
+}
+
+.suit-level {
+  margin: 0 0 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.suit-grid h3 {
+  font-size: 1.8rem;
+}
+
+.suit-need {
+  margin-top: 2rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--photo-radius);
+  padding: 1.5rem 1.25rem;
+}
+
+.suit-need h3 {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+}
+
+.suit-need ul {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.suit-need li {
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.suit-need li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+@media (min-width: 800px) {
+  .suit {
+    padding: 6rem 2.5rem;
+  }
+  .suit-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .suit-need {
+    padding: 1.75rem 2rem;
+  }
+  .suit-need ul {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .suit-need li {
+    border-bottom: 0;
+    padding: 0.85rem 0 0;
+  }
 }
 
 /* Custom goals */
@@ -676,7 +766,6 @@ p {
 }
 
 .lg-open { background: var(--open); }
-.lg-booked { background: var(--booked); }
 .lg-off { background: var(--off); }
 
 .season {
@@ -706,11 +795,6 @@ p {
 .season button.on {
   background: var(--open);
   color: #fff;
-}
-
-.season button.hot {
-  background: var(--booked);
-  color: var(--accent-ink);
 }
 
 .season button.is-current {
@@ -776,33 +860,18 @@ p {
   visibility: hidden;
 }
 
-.day.open {
+.day.available {
   background: color-mix(in srgb, var(--open) 28%, transparent);
   cursor: pointer;
 }
 
-.day.booked {
-  background: color-mix(in srgb, var(--booked) 40%, transparent);
-}
-
-.day.off {
+.day.unavailable {
   color: var(--muted);
   opacity: 0.45;
 }
 
-.day.in-trip {
+.day.selected {
   box-shadow: inset 0 0 0 2px var(--open);
-}
-
-.day.start::after,
-.day.end::after {
-  content: "";
-  position: absolute;
-  left: 6px;
-  right: 6px;
-  bottom: 5px;
-  height: 3px;
-  background: var(--accent);
 }
 
 .cal-hint {
@@ -965,6 +1034,47 @@ p {
     height: 100%;
     min-height: 580px;
     max-height: none;
+  }
+}
+
+/* Pricing */
+
+.price {
+  padding: 5rem 1.25rem;
+}
+
+.price-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.price-grid article {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--photo-radius);
+  padding: 1.75rem 1.4rem;
+}
+
+.price-num {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 4.6rem);
+  letter-spacing: var(--tracking);
+  line-height: 0.95;
+  color: var(--fg);
+}
+
+.price-note {
+  max-width: 36rem;
+  margin-top: 1.4rem;
+}
+
+@media (min-width: 800px) {
+  .price {
+    padding: 6rem 2.5rem;
+  }
+  .price-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
 

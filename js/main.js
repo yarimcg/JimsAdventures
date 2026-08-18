@@ -1,34 +1,17 @@
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-const TRIPS = [
-  { start: "2026-10-08", end: "2026-10-11", status: "booked" },
-  { start: "2026-10-15", end: "2026-10-18", status: "open" },
-  { start: "2026-10-22", end: "2026-10-25", status: "open" },
-  { start: "2026-10-29", end: "2026-11-01", status: "booked" },
-  { start: "2026-11-05", end: "2026-11-08", status: "open" },
-  { start: "2026-11-12", end: "2026-11-15", status: "booked" },
-  { start: "2026-11-19", end: "2026-11-22", status: "open" },
-  { start: "2026-11-26", end: "2026-11-29", status: "open" },
-  { start: "2026-12-03", end: "2026-12-06", status: "booked" },
-  { start: "2026-12-10", end: "2026-12-13", status: "open" },
-  { start: "2026-12-17", end: "2026-12-20", status: "booked" },
-  { start: "2026-12-27", end: "2026-12-31", status: "open" },
-  { start: "2027-01-07", end: "2027-01-10", status: "booked" },
-  { start: "2027-01-14", end: "2027-01-17", status: "open" },
-  { start: "2027-01-21", end: "2027-01-24", status: "open" },
-  { start: "2027-01-28", end: "2027-01-31", status: "booked" },
-  { start: "2027-02-04", end: "2027-02-07", status: "open" },
-  { start: "2027-02-11", end: "2027-02-14", status: "booked" },
-  { start: "2027-02-18", end: "2027-02-21", status: "open" },
-  { start: "2027-02-25", end: "2027-02-28", status: "open" },
-  { start: "2027-03-04", end: "2027-03-07", status: "open" },
-  { start: "2027-03-11", end: "2027-03-14", status: "booked" },
-  { start: "2027-03-18", end: "2027-03-21", status: "open" },
-  { start: "2027-03-25", end: "2027-03-28", status: "open" },
-  { start: "2027-04-01", end: "2027-04-04", status: "open" },
-  { start: "2027-04-08", end: "2027-04-11", status: "booked" },
-  { start: "2027-04-15", end: "2027-04-18", status: "open" }
+const UNAVAILABLE = [
+  { start: "2026-10-08", end: "2026-10-11" },
+  { start: "2026-10-29", end: "2026-11-01" },
+  { start: "2026-11-12", end: "2026-11-15" },
+  { start: "2026-12-03", end: "2026-12-06" },
+  { start: "2026-12-17", end: "2026-12-20" },
+  { start: "2027-01-07", end: "2027-01-10" },
+  { start: "2027-01-28", end: "2027-01-31" },
+  { start: "2027-02-11", end: "2027-02-14" },
+  { start: "2027-03-11", end: "2027-03-14" },
+  { start: "2027-04-08", end: "2027-04-11" }
 ];
 
 const KINLOCH = [-38.6684, 175.9228];
@@ -99,8 +82,9 @@ const CHRISTCHURCH = [-43.5321, 172.6362];
 const NZ_BOUNDS = [[-34.5, 166.3], [-47.3, 178.8]];
 
 let viewYear = 2026;
-let viewMonth = 9; // October
-let selectedTrip = null;
+let viewMonth = 11; // December — summer
+let selectedStart = null;
+let selectedEnd = null;
 let map, tileLayer, trackLine, markers = [];
 let mapNz, tileLayerNz, nzMarkers = [];
 
@@ -121,9 +105,14 @@ function inRange(date, start, end) {
   return t >= parseDay(start).getTime() && t <= parseDay(end).getTime();
 }
 
-function isSeason(date) {
-  const m = date.getMonth();
-  return m >= 9 || m <= 3; // Oct–Apr
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function isUnavailable(date) {
+  const today = startOfDay(new Date());
+  if (startOfDay(date) < today) return true;
+  return UNAVAILABLE.some((block) => inRange(date, block.start, block.end));
 }
 
 function accentColor() {
@@ -141,14 +130,12 @@ function swapTiles() {
   }
 }
 
-function seasonHeat(monthIndex, year) {
-  const trips = TRIPS.filter((t) => {
-    const s = parseDay(t.start);
-    return s.getMonth() === monthIndex && s.getFullYear() === year;
-  });
-  if (!trips.length) return "off";
-  if (trips.some((t) => t.status === "open")) return "on";
-  return "hot";
+function monthHasAvailable(monthIndex, year) {
+  const days = new Date(year, monthIndex + 1, 0).getDate();
+  for (let day = 1; day <= days; day += 1) {
+    if (!isUnavailable(new Date(year, monthIndex, day))) return true;
+  }
+  return false;
 }
 
 function renderSeason() {
@@ -158,8 +145,7 @@ function renderSeason() {
   for (let i = 0; i < 12; i += 1) {
     const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
     const btn = document.createElement("button");
-    const heat = seasonHeat(d.getMonth(), d.getFullYear());
-    btn.className = heat;
+    btn.className = monthHasAvailable(d.getMonth(), d.getFullYear()) ? "on" : "off";
     if (d.getMonth() === viewMonth && d.getFullYear() === viewYear) btn.classList.add("is-current");
     btn.type = "button";
     btn.innerHTML = `<span>${MONTHS[d.getMonth()]}</span><span>${String(d.getFullYear()).slice(2)}</span>`;
@@ -174,13 +160,24 @@ function renderSeason() {
 }
 
 function formatRange(start, end) {
-  const a = parseDay(start);
-  const b = parseDay(end);
-  const sameMonth = a.getMonth() === b.getMonth();
+  const a = start instanceof Date ? start : parseDay(start);
+  const b = end instanceof Date ? end : parseDay(end);
+  const sameMonth = a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
+  if (iso(a) === iso(b)) {
+    return `${a.getDate()} ${MONTHS_LONG[a.getMonth()]} ${a.getFullYear()}`;
+  }
   if (sameMonth) {
     return `${a.getDate()}–${b.getDate()} ${MONTHS_LONG[a.getMonth()]} ${a.getFullYear()}`;
   }
   return `${a.getDate()} ${MONTHS[a.getMonth()]} – ${b.getDate()} ${MONTHS[b.getMonth()]} ${b.getFullYear()}`;
+}
+
+function isSelected(date) {
+  if (!selectedStart) return false;
+  const t = startOfDay(date).getTime();
+  const a = startOfDay(selectedStart).getTime();
+  const b = startOfDay(selectedEnd || selectedStart).getTime();
+  return t >= Math.min(a, b) && t <= Math.max(a, b);
 }
 
 function renderCalendar() {
@@ -213,36 +210,41 @@ function renderCalendar() {
     btn.className = "day";
     btn.textContent = String(day);
 
-    const trip = TRIPS.find((t) => inRange(new Date(date), t.start, t.end));
-    if (!isSeason(date) && !trip) {
-      btn.classList.add("off");
-    } else if (trip) {
-      btn.classList.add(trip.status);
-      if (iso(date) === trip.start) btn.classList.add("start");
-      if (iso(date) === trip.end) btn.classList.add("end");
-      if (selectedTrip && selectedTrip.start === trip.start) btn.classList.add("in-trip");
-      if (trip.status === "open") {
-        btn.title = `Open · ${formatRange(trip.start, trip.end)}`;
-        btn.addEventListener("click", () => selectTrip(trip));
-      } else {
-        btn.title = `Booked · ${formatRange(trip.start, trip.end)}`;
-      }
-    } else if (isSeason(date)) {
-      btn.classList.add("off");
-      btn.title = "Between trips — ask Jim about a custom window";
+    if (isUnavailable(date)) {
+      btn.classList.add("unavailable");
+      btn.title = "Unavailable";
+    } else {
+      btn.classList.add("available");
+      btn.title = "Available";
+      if (isSelected(date)) btn.classList.add("selected");
+      btn.addEventListener("click", () => selectDay(date));
     }
 
     root.appendChild(btn);
   }
 }
 
-function selectTrip(trip) {
-  selectedTrip = trip;
+function selectDay(date) {
+  const picked = startOfDay(date);
+  if (!selectedStart || selectedEnd) {
+    selectedStart = picked;
+    selectedEnd = null;
+  } else {
+    selectedEnd = picked;
+    if (selectedEnd < selectedStart) {
+      const swap = selectedStart;
+      selectedStart = selectedEnd;
+      selectedEnd = swap;
+    }
+  }
+
   const field = document.getElementById("dates-field");
-  field.value = formatRange(trip.start, trip.end);
-  document.getElementById("cal-hint").textContent = `${formatRange(trip.start, trip.end)} held on your enquiry.`;
+  const label = formatRange(selectedStart, selectedEnd || selectedStart);
+  field.value = label;
+  document.getElementById("cal-hint").textContent = selectedEnd
+    ? `${label} held on your enquiry.`
+    : `${label} — tap another day for a range, or enquire as-is.`;
   renderCalendar();
-  document.getElementById("book").scrollIntoView({ behavior: "smooth" });
 }
 
 function pinIcon(letter) {
@@ -258,7 +260,7 @@ function pinIcon(letter) {
 
 function addPins() {
   markers = [
-    L.marker(KINLOCH, { icon: pinIcon("A") }).addTo(map).bindPopup("<strong>Kinloch</strong><br>Trailhead. Park and walk the K2K."),
+    L.marker(KINLOCH, { icon: pinIcon("A") }).addTo(map).bindPopup("<strong>Kinloch</strong><br>Trailhead. A café here finishes the trip."),
     L.marker(CAMP, { icon: pinIcon("B") }).addTo(map).bindPopup("<strong>Kawakawa camp</strong><br>Tents, swim, Jim’s kitchen."),
     L.marker(CLIFFS, { icon: pinIcon("C") }).addTo(map).bindPopup("<strong>The cliffs</strong><br>Lead, multi-pitch, trad."),
     L.marker(LOOKOUT, { icon: pinIcon("D") }).addTo(map).bindPopup("<strong>Codger’s Rock</strong><br>Lookout on the K2K walk in.")
@@ -378,9 +380,9 @@ function initForm() {
       "",
       data.note || ""
     ].join("\n");
-    const mailto = `mailto:jim@jimsadventures.nz?subject=${encodeURIComponent("Kawakawa Bay enquiry")}&body=${encodeURIComponent(body)}`;
+    const mailto = `mailto:jameshagger388@gmail.com?subject=${encodeURIComponent("Kawakawa Bay enquiry")}&body=${encodeURIComponent(body)}`;
     status.hidden = false;
-    status.textContent = "Opening your email to Jim — if nothing pops, write jim@jimsadventures.nz.";
+    status.textContent = "Opening your email to Jim — if nothing pops, write jameshagger388@gmail.com.";
     window.location.href = mailto;
   });
 }
