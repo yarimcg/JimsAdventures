@@ -241,6 +241,10 @@ p {
   text-transform: uppercase;
 }
 
+.nav a:not(.nav-cta) {
+  display: none;
+}
+
 .nav-cta {
   background: var(--accent);
   color: var(--accent-ink) !important;
@@ -252,6 +256,9 @@ p {
 @media (min-width: 880px) {
   .site-header {
     padding: 0.85rem 2rem;
+  }
+  .nav a:not(.nav-cta) {
+    display: inline;
   }
 }
 
