@@ -336,12 +336,17 @@ function initMap() {
   setTimeout(() => mapNz.invalidateSize(), 300);
 }
 
+function goHome(event) {
+  event.preventDefault();
+  if (window.location.hash) {
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+  }
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 function initNav() {
-  document.querySelectorAll("a.brand").forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+  document.querySelectorAll("a.brand, a.nav-home").forEach((link) => {
+    link.addEventListener("click", goHome);
   });
 }
 
