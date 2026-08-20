@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Jim's Adventures — New Zealand Climbing Tours, Kawakawa Bay</title>
+  <title>Preview: Alt takes — Jim's Adventures</title>
+  <meta name="robots" content="noindex" />
   <meta name="description" content="Private NZ climbing tours at Kawakawa Bay, Lake Taupō. Hike in, camp on the lake, and climb rhyolite with Jim. New Zealand climbing tours for one or two people. Meals and rack included." />
   <link rel="icon" href="images/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,18 +13,19 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/photo-preview.css" />
+  <style>:root { --hero-pos: 82% 55%; }</style>
 </head>
 <body>
   <nav class="photo-preview-bar" aria-label="Photo layout previews">
     <strong>Photo previews</strong>
-    <a href="index.html" aria-current="page">Live</a>
+    <a href="index.html">Live</a>
     <a href="preview-recommended.html">Recommended</a>
     <a href="preview-hero-smile.html">Hero: smile</a>
     <a href="preview-hero-above.html">Hero: from above</a>
     <a href="preview-hero-bay.html">Hero: bay</a>
-    <a href="preview-alt-takes.html">Alt takes</a>
+    <a href="preview-alt-takes.html" aria-current="page">Alt takes</a>
     <a href="preview-gallery.html">Gallery all</a>
-    <span class="photo-preview-note">Current live page. Switch a layout to compare photos in place.</span>
+    <span class="photo-preview-note">Same slots, the near-duplicates I would skip. Compare against Recommended.</span>
   </nav>
   <div class="grain" aria-hidden="true"></div>
 
@@ -60,7 +62,7 @@
   <main>
     <section class="hero">
       <div class="hero-media">
-          <img id="hero-img" src="images/rappel.jpg" alt="Rappelling a high cliff with the valley and lake country below" />
+          <img id="hero-img" src="images/client-on-wall-wide.jpg" alt="Climber on the wall with misty lake filling the frame" />
         <div class="hero-shade"></div>
       </div>
       <div class="hero-copy">
@@ -88,7 +90,7 @@
         <p>Kawakawa Bay sits on the north-western shore of Lake Taupō — rhyolite cliffs in native bush, a grassy camp on the water, and swimming so good you’ll forget the last pitch. Jim runs these as <strong>custom, two-person tours</strong>. Not a group. Not a timetable you have to squeeze into. Your goals, his rack, a stove that never stops.</p>
       </div>
       <figure class="intro-photo">
-        <img src="images/lake-quickdraws.jpg" alt="Quickdraws clipped on the cliff, the lake framed between rock walls" />
+        <img src="images/cave-window.jpg" alt="Lake and bush framed through a rhyolite cave" />
         <figcaption>Sport, trad, and mixed — the bay has all of it.</figcaption>
       </figure>
     </section>
@@ -116,7 +118,7 @@
       </article>
       <article class="story-block">
         <div class="story-photo">
-          <img src="images/climb-up.jpg" alt="Looking up a tall textured cliff as a climber leads toward the sky" />
+          <img src="images/client-reach-close.jpg" alt="Climber focused on the next hold, lake below" />
         </div>
         <div class="story-copy">
           <span class="num">03</span>
@@ -205,7 +207,7 @@
       </div>
       <div class="two-photos">
         <img src="images/belay-ledge.jpg" alt="Two climbers on a high ledge above the lake" />
-        <img src="images/cave-belay.jpg" alt="Climbers in a cave belay looking out over Lake Taupō" />
+        <img src="images/jim-on-ledge.jpg" alt="Jim resting on a ledge with the rope coiled beside him" />
       </div>
     </section>
 
@@ -288,12 +290,12 @@
         <p>Browse the <a href="https://climbnz.org.nz/nz/ni/taupo/kawakawa-bay" target="_blank" rel="noopener noreferrer">online climbing guide</a> for the walls and routes.</p>
       </div>
       <div class="gallery-grid">
-        <button type="button" data-full="images/climb-wall.jpg"><img src="images/climb-wall.jpg" alt="Climber on a steep wall in the bush" /></button>
-        <button type="button" data-full="images/climb-up.jpg"><img src="images/climb-up.jpg" alt="Worm’s-eye view of a lead climb" /></button>
-        <button type="button" data-full="images/rappel.jpg"><img src="images/rappel.jpg" alt="Rappel off a high cliff" /></button>
-        <button type="button" data-full="images/ledge-traverse.jpg"><img src="images/ledge-traverse.jpg" alt="Party traversing a cliff ledge" /></button>
-        <button type="button" data-full="images/cave-belay.jpg"><img src="images/cave-belay.jpg" alt="Cave belay overlooking the lake" /></button>
-        <button type="button" data-full="images/camp-sunset-path.jpg"><img src="images/camp-sunset-path.jpg" alt="Camp at sunset" /></button>
+        <button type="button" data-full="images/lake-rainbow-portrait.jpg"><img src="images/lake-rainbow-portrait.jpg" alt="Rainbow over the lake, portrait frame" /></button>
+        <button type="button" data-full="images/client-from-above.jpg"><img src="images/client-from-above.jpg" alt="Looking straight down the cliff at a climber above the water" /></button>
+        <button type="button" data-full="images/client-on-wall-wide.jpg"><img src="images/client-on-wall-wide.jpg" alt="Climber on the wall with misty lake filling the frame" /></button>
+        <button type="button" data-full="images/client-reach-close.jpg"><img src="images/client-reach-close.jpg" alt="Climber focused on the next hold, lake below" /></button>
+        <button type="button" data-full="images/jim-on-ledge.jpg"><img src="images/jim-on-ledge.jpg" alt="Jim resting on a ledge with the rope coiled beside him" /></button>
+        <button type="button" data-full="images/cave-window.jpg"><img src="images/cave-window.jpg" alt="Lake and bush framed through a rhyolite cave" /></button>
       </div>
     </section>
 
@@ -326,7 +328,7 @@
           <p>Two seats. Custom days. Airport pick-up and drop-off if you want it. Tell him what you like to eat — the menu is custom, healthy food, dehydrated before you arrive. Ask for what you need — the idea of a guided trip is to keep things simple. He’ll write back with a plan, a packing list, and whether those dates are still available.</p>
         </div>
         <figure class="book-photo">
-          <img src="images/jim-on-ledge.jpg" alt="Jim on a high ledge at Kawakawa Bay, rope coiled beside him" />
+          <img src="images/jim-and-guest.jpg" alt="Jim and a guest smiling on a high ledge above Kawakawa Bay" />
         </figure>
       </div>
       <div class="book-lead">
@@ -336,7 +338,7 @@
           <p>Summer is the best time of year — long days, warm rock, a swim after. Open dates follow NZ school holidays and public holidays. Winter can be cold and the daylight hours are short. Public holidays get busy, but we’ll always make something work. Each trip is two nights and three days.</p>
         </div>
         <figure class="book-photo">
-          <img src="images/lake-rainbow-portrait.jpg" alt="Rainbow over Lake Taupō after a summer shower" />
+          <img src="images/lake-rainbow.jpg" alt="Rainbow over Lake Taupō from Kawakawa Bay" />
         </figure>
       </div>
       <div class="book-pair" id="book">
@@ -422,16 +424,16 @@
     <p class="fine">Not affiliated with DOC. Independent guided trips. You climb at your own risk with a qualified host — ask Jim about experience and first-aid when you enquire.</p>
   </footer>
 
-  <nav class="photo-preview-bar photo-preview-bar-bottom" aria-label="Photo layout previews">
+<nav class="photo-preview-bar photo-preview-bar-bottom" aria-label="Photo layout previews, page bottom">
     <strong>Photo previews</strong>
-    <a href="index.html" aria-current="page">Live</a>
+    <a href="index.html">Live</a>
     <a href="preview-recommended.html">Recommended</a>
     <a href="preview-hero-smile.html">Hero: smile</a>
     <a href="preview-hero-above.html">Hero: from above</a>
     <a href="preview-hero-bay.html">Hero: bay</a>
-    <a href="preview-alt-takes.html">Alt takes</a>
+    <a href="preview-alt-takes.html" aria-current="page">Alt takes</a>
     <a href="preview-gallery.html">Gallery all</a>
-    <span class="photo-preview-note">Current live page. Switch a layout to compare photos in place.</span>
+    <span class="photo-preview-note">Same slots, the near-duplicates I would skip. Compare against Recommended.</span>
   </nav>
 
   <div class="lightbox" id="lightbox" hidden>
