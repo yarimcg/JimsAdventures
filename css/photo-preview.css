@@ -1,9 +1,11 @@
-/* Sticky switcher for local photo-layout previews. Not used on the live index. */
+/* Fixed bottom switcher for local photo-layout previews. */
 
 .photo-preview-bar {
-  position: sticky;
-  top: 0;
-  z-index: 85;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 86;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -11,11 +13,14 @@
   padding: 0.55rem 1rem 0.65rem;
   padding-left: max(1rem, env(safe-area-inset-left));
   padding-right: max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(0.65rem, env(safe-area-inset-bottom));
   background: #2a1f14;
   color: #f3ead8;
   font-family: "Outfit", sans-serif;
   font-size: 0.78rem;
   line-height: 1.35;
+  border-top: 1px solid rgba(243, 234, 216, 0.18);
+  box-shadow: 0 -10px 28px rgba(42, 31, 20, 0.28);
 }
 
 .photo-preview-bar strong {
@@ -42,39 +47,10 @@
 
 .photo-preview-note {
   flex: 1 1 12rem;
+  flex-basis: 100%;
   opacity: 0.72;
 }
 
-html.photo-preview {
-  scroll-padding-top: 9.5rem;
-}
-
-html.photo-preview .site-header {
-  top: 2.85rem;
-}
-
-@media (max-width: 720px) {
-  html.photo-preview .site-header {
-    top: 4.6rem;
-  }
-}
-
-.photo-preview-bar-bottom {
-  position: fixed;
-  top: auto;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 86;
-  padding-bottom: max(0.65rem, env(safe-area-inset-bottom));
-  border-top: 1px solid rgba(243, 234, 216, 0.18);
-  box-shadow: 0 -10px 28px rgba(42, 31, 20, 0.28);
-}
-
-.photo-preview-bar-bottom .photo-preview-note {
-  flex-basis: 100%;
-}
-
-body:has(.photo-preview-bar-bottom) {
+body:has(.photo-preview-bar) {
   padding-bottom: 5.5rem;
 }
