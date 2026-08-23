@@ -51,6 +51,6 @@
   opacity: 0.72;
 }
 
-body:has(.photo-preview-bar) {
+body[data-preview-note] {
   padding-bottom: 5.5rem;
 }

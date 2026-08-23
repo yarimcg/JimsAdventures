@@ -1,5 +1,5 @@
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTHS = MONTHS_LONG.map((name) => name.slice(0, 3));
 
 // Ministry of Education term breaks:
 // https://www.education.govt.nz/school/school-terms-and-holiday-dates
@@ -114,16 +114,19 @@ const CHRISTCHURCH = [-43.5321, 172.6362];
 const NZ_BOUNDS = [[-34.5, 166.3], [-47.3, 178.8]];
 
 let viewYear = 2026;
-let viewMonth = 11; // December — summer
+let viewMonth = 11;
 let selectedStart = null;
-let selectedEnd = null;
-let map, tileLayer, trackLine, markers = [];
-let mapNz, tileLayerNz, nzMarkers = [];
 
 function parseDay(iso) {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(y, m - 1, d);
 }
+
+const PUBLIC_HOLIDAY_SET = new Set(PUBLIC_HOLIDAYS);
+const SCHOOL_RANGES = SCHOOL_HOLIDAYS.map((block) => ({
+  start: parseDay(block.start).getTime(),
+  end: parseDay(block.end).getTime()
+}));
 
 function iso(date) {
   const y = date.getFullYear();
@@ -132,18 +135,14 @@ function iso(date) {
   return `${y}-${m}-${d}`;
 }
 
-function inRange(date, start, end) {
-  const t = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-  return t >= parseDay(start).getTime() && t <= parseDay(end).getTime();
-}
-
 function startOfDay(date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
 function isHolidayOpen(date) {
-  if (PUBLIC_HOLIDAYS.includes(iso(date))) return true;
-  return SCHOOL_HOLIDAYS.some((block) => inRange(date, block.start, block.end));
+  if (PUBLIC_HOLIDAY_SET.has(iso(date))) return true;
+  const t = startOfDay(date).getTime();
+  return SCHOOL_RANGES.some((block) => t >= block.start && t <= block.end);
 }
 
 function isUnavailable(date) {
@@ -155,15 +154,8 @@ function accentColor() {
   return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#c45c26";
 }
 
-function swapTiles() {
-  if (tileLayer) map.removeLayer(tileLayer);
-  tileLayer = L.tileLayer(TILES.url, { attribution: TILES.attr, maxZoom: 18 }).addTo(map);
-  if (trackLine) trackLine.setStyle({ color: accentColor() });
-  if (markers.length) {
-    markers.forEach((m) => map.removeLayer(m));
-    markers = [];
-    addPins();
-  }
+function addTiles(target) {
+  return L.tileLayer(TILES.url, { attribution: TILES.attr, maxZoom: 18 }).addTo(target);
 }
 
 function monthHasAvailable(monthIndex, year) {
@@ -196,24 +188,22 @@ function renderSeason() {
 }
 
 function formatRange(start, end) {
-  const a = start instanceof Date ? start : parseDay(start);
-  const b = end instanceof Date ? end : parseDay(end);
-  const sameMonth = a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
-  if (iso(a) === iso(b)) {
-    return `${a.getDate()} ${MONTHS_LONG[a.getMonth()]} ${a.getFullYear()}`;
+  const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+  if (iso(start) === iso(end)) {
+    return `${start.getDate()} ${MONTHS_LONG[start.getMonth()]} ${start.getFullYear()}`;
   }
   if (sameMonth) {
-    return `${a.getDate()}–${b.getDate()} ${MONTHS_LONG[a.getMonth()]} ${a.getFullYear()}`;
+    return `${start.getDate()}–${end.getDate()} ${MONTHS_LONG[start.getMonth()]} ${start.getFullYear()}`;
   }
-  return `${a.getDate()} ${MONTHS[a.getMonth()]} – ${b.getDate()} ${MONTHS[b.getMonth()]} ${b.getFullYear()}`;
+  return `${start.getDate()} ${MONTHS[start.getMonth()]} – ${end.getDate()} ${MONTHS[end.getMonth()]} ${end.getFullYear()}`;
 }
 
 function isSelected(date) {
   if (!selectedStart) return false;
   const t = startOfDay(date).getTime();
   const a = startOfDay(selectedStart).getTime();
-  const b = startOfDay(selectedEnd || selectedStart).getTime();
-  return t >= Math.min(a, b) && t <= Math.max(a, b);
+  const b = startOfDay(tripEndFrom(selectedStart)).getTime();
+  return t >= a && t <= b;
 }
 
 function rangeIsOpen(start, end) {
@@ -239,32 +229,22 @@ function tripEndFrom(start) {
   return addDays(start, TRIP_NIGHTS);
 }
 
-function nightsHeld(start, end) {
-  const a = startOfDay(start).getTime();
-  const b = startOfDay(end).getTime();
-  return Math.round(Math.abs(b - a) / 86400000);
-}
-
-function tripFitsStay(start, end) {
-  return nightsHeld(start, end) === TRIP_NIGHTS;
-}
-
 function canStartTrip(date) {
   if (isUnavailable(date)) return false;
   return rangeIsOpen(date, tripEndFrom(date));
 }
 
-function holdDates() {
+function holdDates(message) {
   const field = document.getElementById("dates-field");
   const hint = document.getElementById("cal-hint");
-  if (!selectedStart || !selectedEnd) {
+  if (!selectedStart) {
     field.value = "";
-    hint.textContent = "Tap a day to hold two nights from that morning.";
+    hint.textContent = message || "Tap a day to hold two nights from that morning.";
     return;
   }
-  const label = formatRange(selectedStart, selectedEnd);
+  const label = formatRange(selectedStart, tripEndFrom(selectedStart));
   field.value = label;
-  hint.textContent = `${label} held on your enquiry.`;
+  hint.textContent = message || `${label} held on your enquiry.`;
 }
 
 function renderCalendar() {
@@ -319,30 +299,22 @@ function renderCalendar() {
 
 function selectDay(date) {
   const picked = startOfDay(date);
-  const end = tripEndFrom(picked);
   if (selectedStart && iso(picked) === iso(selectedStart)) {
     selectedStart = null;
-    selectedEnd = null;
-  } else if (!rangeIsOpen(picked, end)) {
+  } else if (!rangeIsOpen(picked, tripEndFrom(picked))) {
     selectedStart = null;
-    selectedEnd = null;
+    holdDates("That two-night stay includes unavailable days. Pick another start.");
     renderCalendar();
-    holdDates();
-    document.getElementById("cal-hint").textContent =
-      "That two-night stay includes unavailable days. Pick another start.";
     return;
   } else {
     selectedStart = picked;
-    selectedEnd = end;
   }
 
   holdDates();
   renderCalendar();
 }
 
-function pinIcon(letter) {
-  const accent = accentColor();
-  const ink = getComputedStyle(document.documentElement).getPropertyValue("--accent-ink").trim() || "#111";
+function pinIcon(letter, accent, ink) {
   return L.divIcon({
     className: "",
     html: `<div style="width:28px;height:28px;border-radius:50%;background:${accent};color:${ink};display:grid;place-items:center;font:700 12px Outfit,sans-serif;box-shadow:0 0 0 3px rgba(0,0,0,.25)">${letter}</div>`,
@@ -351,12 +323,10 @@ function pinIcon(letter) {
   });
 }
 
-function addPins() {
-  markers = [
-    L.marker(KINLOCH, { icon: pinIcon("A") }).addTo(map).bindPopup("<strong>Kinloch</strong><br>Carpark by Little Harbour. Café at the finish."),
-    L.marker(CAMP, { icon: pinIcon("B") }).addTo(map).bindPopup("<strong>Kawakawa camp</strong><br>Tents, swim, Jim’s kitchen."),
-    L.marker(LOOKOUT, { icon: pinIcon("C") }).addTo(map).bindPopup("<strong>Codger’s Rock</strong><br>Lookout on the K2K walk in.")
-  ];
+function addPins(map, accent, ink) {
+  L.marker(KINLOCH, { icon: pinIcon("A", accent, ink) }).addTo(map).bindPopup("<strong>Kinloch</strong><br>Carpark by Little Harbour. Café at the finish.");
+  L.marker(CAMP, { icon: pinIcon("B", accent, ink) }).addTo(map).bindPopup("<strong>Kawakawa camp</strong><br>Tents, swim, Jim’s kitchen.");
+  L.marker(LOOKOUT, { icon: pinIcon("C", accent, ink) }).addTo(map).bindPopup("<strong>Codger’s Rock</strong><br>Lookout on the K2K walk in.");
 }
 
 function cityLabel(text, camp) {
@@ -368,62 +338,52 @@ function cityLabel(text, camp) {
   });
 }
 
-function addNzPins() {
-  nzMarkers = [
-    L.circleMarker(CAMP, {
-      radius: 9,
-      color: accentColor(),
-      weight: 3,
-      fillColor: accentColor(),
-      fillOpacity: 1
-    }).addTo(mapNz).bindPopup("<strong>Kawakawa Bay</strong><br>Lake Taupō, North Island."),
-    L.marker(CAMP, { icon: cityLabel("Kawakawa Bay", true) }).addTo(mapNz),
-    L.marker(AUCKLAND, { icon: cityLabel("Auckland") }).addTo(mapNz),
-    L.marker(WELLINGTON, { icon: cityLabel("Wellington") }).addTo(mapNz),
-    L.marker(CHRISTCHURCH, { icon: cityLabel("Christchurch") }).addTo(mapNz)
-  ];
-}
-
-function swapNzTiles() {
-  if (tileLayerNz) mapNz.removeLayer(tileLayerNz);
-  tileLayerNz = L.tileLayer(TILES.url, { attribution: TILES.attr, maxZoom: 18 }).addTo(mapNz);
-  if (nzMarkers.length) {
-    nzMarkers.forEach((m) => mapNz.removeLayer(m));
-    nzMarkers = [];
-    addNzPins();
-  }
+function addNzPins(mapNz, accent) {
+  L.circleMarker(CAMP, {
+    radius: 9,
+    color: accent,
+    weight: 3,
+    fillColor: accent,
+    fillOpacity: 1
+  }).addTo(mapNz).bindPopup("<strong>Kawakawa Bay</strong><br>Lake Taupō, North Island.");
+  L.marker(CAMP, { icon: cityLabel("Kawakawa Bay", true) }).addTo(mapNz);
+  L.marker(AUCKLAND, { icon: cityLabel("Auckland") }).addTo(mapNz);
+  L.marker(WELLINGTON, { icon: cityLabel("Wellington") }).addTo(mapNz);
+  L.marker(CHRISTCHURCH, { icon: cityLabel("Christchurch") }).addTo(mapNz);
 }
 
 function initMap() {
-  map = L.map("leaflet-map", {
+  const accent = accentColor();
+  const ink = getComputedStyle(document.documentElement).getPropertyValue("--accent-ink").trim() || "#111";
+
+  const map = L.map("leaflet-map", {
     scrollWheelZoom: false,
     zoomControl: true
   });
+  addTiles(map);
 
-  swapTiles();
-
-  trackLine = L.polyline(TRACK, {
-    color: accentColor(),
+  const trackLine = L.polyline(TRACK, {
+    color: accent,
     weight: 5,
     opacity: 0.95,
     lineJoin: "round",
     lineCap: "round"
   }).addTo(map);
 
-  addPins();
+  addPins(map, accent, ink);
   map.fitBounds(trackLine.getBounds(), { padding: [28, 28] });
   setTimeout(() => {
     map.invalidateSize();
     map.fitBounds(trackLine.getBounds(), { padding: [28, 28] });
   }, 300);
 
-  mapNz = L.map("leaflet-map-nz", {
+  const mapNz = L.map("leaflet-map-nz", {
     scrollWheelZoom: false,
     zoomControl: true
   }).fitBounds(NZ_BOUNDS, { padding: [24, 24] });
 
-  swapNzTiles();
-  addNzPins();
+  addTiles(mapNz);
+  addNzPins(mapNz, accent);
   setTimeout(() => mapNz.invalidateSize(), 300);
 }
 
@@ -441,25 +401,22 @@ function initNav() {
   });
 }
 
+function shiftViewMonth(delta) {
+  viewMonth += delta;
+  if (viewMonth < 0) {
+    viewMonth = 11;
+    viewYear -= 1;
+  } else if (viewMonth > 11) {
+    viewMonth = 0;
+    viewYear += 1;
+  }
+  renderSeason();
+  renderCalendar();
+}
+
 function initCalNav() {
-  document.getElementById("cal-prev").addEventListener("click", () => {
-    viewMonth -= 1;
-    if (viewMonth < 0) {
-      viewMonth = 11;
-      viewYear -= 1;
-    }
-    renderSeason();
-    renderCalendar();
-  });
-  document.getElementById("cal-next").addEventListener("click", () => {
-    viewMonth += 1;
-    if (viewMonth > 11) {
-      viewMonth = 0;
-      viewYear += 1;
-    }
-    renderSeason();
-    renderCalendar();
-  });
+  document.getElementById("cal-prev").addEventListener("click", () => shiftViewMonth(-1));
+  document.getElementById("cal-next").addEventListener("click", () => shiftViewMonth(1));
 }
 
 function initForm() {
@@ -468,7 +425,7 @@ function initForm() {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(form));
-    if (!selectedStart || !selectedEnd || !rangeIsOpen(selectedStart, selectedEnd) || !tripFitsStay(selectedStart, selectedEnd)) {
+    if (!selectedStart || !rangeIsOpen(selectedStart, tripEndFrom(selectedStart))) {
       status.hidden = false;
       status.textContent = "Pick two nights of open dates from the calendar.";
       return;
@@ -476,16 +433,14 @@ function initForm() {
     const body = [
       `Name: ${data.name}`,
       `Email: ${data.email}`,
-      `Dates: ${data.dates || "flexible"}`,
+      `Dates: ${data.dates}`,
       `Party: ${data.party}`,
       `Airport pick-up: ${data.pickup}`,
       `Goal: ${data.goal}`,
       "",
       data.note || ""
     ].join("\n");
-    const subject = data.dates
-      ? `Kawakawa Bay enquiry — ${data.dates}`
-      : "Kawakawa Bay enquiry";
+    const subject = `Kawakawa Bay enquiry — ${data.dates}`;
     const mailto = `mailto:jameshagger388@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     status.hidden = false;
     status.textContent = "Opening your email to Jim — if nothing pops, write jameshagger388@gmail.com.";
@@ -496,22 +451,21 @@ function initForm() {
 function initLightbox() {
   const box = document.getElementById("lightbox");
   const img = box.querySelector("img");
+  const close = () => {
+    box.hidden = true;
+    img.src = "";
+  };
   document.querySelectorAll(".gallery-grid button").forEach((btn) => {
     btn.addEventListener("click", () => {
-      img.src = btn.dataset.full;
-      img.alt = btn.querySelector("img").alt;
+      const thumb = btn.querySelector("img");
+      img.src = thumb.src;
+      img.alt = thumb.alt;
       box.hidden = false;
     });
   });
-  box.querySelector(".lightbox-close").addEventListener("click", () => {
-    box.hidden = true;
-    img.src = "";
-  });
+  box.querySelector(".lightbox-close").addEventListener("click", close);
   box.addEventListener("click", (e) => {
-    if (e.target === box) {
-      box.hidden = true;
-      img.src = "";
-    }
+    if (e.target === box) close();
   });
 }
 

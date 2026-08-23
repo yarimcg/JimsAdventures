@@ -11,11 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,700;1,6..72,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="css/photo-preview.css" />
+  <link rel="stylesheet" href="css/styles.css?v=1787451359" />
+  <link rel="stylesheet" href="css/photo-preview.css?v=1787451382" />
   <style>:root { --hero-pos: center 40%; }</style>
 </head>
-<body>
+<body data-preview-note="No people — just the crescent of Kawakawa Bay from the wall. Quiet, scenic hero.">
   <div class="grain" aria-hidden="true"></div>
 
   <header class="site-header">
@@ -51,7 +51,7 @@
   <main>
     <section class="hero">
       <div class="hero-media">
-          <img id="hero-img" src="images/bay-from-cliff.jpg" alt="Kawakawa Bay from the cliff — forest and water in a crescent" />
+          <img src="images/bay-from-cliff.jpg" alt="Kawakawa Bay from the cliff — forest and water in a crescent" />
         <div class="hero-shade"></div>
       </div>
       <div class="hero-copy">
@@ -279,12 +279,12 @@
         <p>Browse the <a href="https://climbnz.org.nz/nz/ni/taupo/kawakawa-bay" target="_blank" rel="noopener noreferrer">online climbing guide</a> for the walls and routes.</p>
       </div>
       <div class="gallery-grid">
-        <button type="button" data-full="images/client-look-up.jpg"><img src="images/client-look-up.jpg" alt="Looking down the rope at a climber above the lake" /></button>
-        <button type="button" data-full="images/client-on-wall.jpg"><img src="images/client-on-wall.jpg" alt="Guest smiling from the wall with the misty lake behind" /></button>
-        <button type="button" data-full="images/lake-rainbow.jpg"><img src="images/lake-rainbow.jpg" alt="Rainbow over Lake Taupō from Kawakawa Bay" /></button>
-        <button type="button" data-full="images/cave-window.jpg"><img src="images/cave-window.jpg" alt="Lake and bush framed through a rhyolite cave" /></button>
-        <button type="button" data-full="images/client-reach.jpg"><img src="images/client-reach.jpg" alt="Climber reaching across a ledge above Lake Taupō" /></button>
-        <button type="button" data-full="images/camp-sunset-path.jpg"><img src="images/camp-sunset-path.jpg" alt="Camp at sunset" /></button>
+        <button type="button"><img src="images/client-look-up.jpg" alt="Looking down the rope at a climber above the lake" /></button>
+        <button type="button"><img src="images/client-on-wall.jpg" alt="Guest smiling from the wall with the misty lake behind" /></button>
+        <button type="button"><img src="images/lake-rainbow.jpg" alt="Rainbow over Lake Taupō from Kawakawa Bay" /></button>
+        <button type="button"><img src="images/cave-window.jpg" alt="Lake and bush framed through a rhyolite cave" /></button>
+        <button type="button"><img src="images/client-reach.jpg" alt="Climber reaching across a ledge above Lake Taupō" /></button>
+        <button type="button"><img src="images/camp-sunset-path.jpg" alt="Camp at sunset" /></button>
       </div>
     </section>
 
@@ -413,25 +413,13 @@
     <p class="fine">Not affiliated with DOC. Independent guided trips. You climb at your own risk with a qualified host — ask Jim about experience and first-aid when you enquire.</p>
   </footer>
 
-<nav class="photo-preview-bar photo-preview-bar-bottom" aria-label="Photo layout previews, page bottom">
-    <strong>Photo previews</strong>
-    <a href="index.html">Live</a>
-    <a href="preview-recommended.html">Recommended</a>
-    <a href="preview-hero-smile.html">Hero: smile</a>
-    <a href="preview-hero-above.html">Hero: from above</a>
-    <a href="preview-hero-bay.html" aria-current="page">Hero: bay</a>
-    <a href="preview-alt-takes.html">Alt takes</a>
-    <a href="preview-gallery.html">Gallery all</a>
-    <span class="photo-preview-note">No people — just the crescent of Kawakawa Bay from the wall. Quiet, scenic hero.</span>
-  </nav>
-
   <div class="lightbox" id="lightbox" hidden>
     <button type="button" class="lightbox-close" aria-label="Close">×</button>
     <img alt="" />
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/main.js"></script>
-  <script src="js/photo-preview.js"></script>
+  <script src="js/main.js?v=1787451352"></script>
+  <script src="js/photo-preview.js?v=1787451355"></script>
 </body>
 </html>
